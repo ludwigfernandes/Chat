@@ -2,6 +2,7 @@ package com.example.chat
 
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.chat.databinding.ActivityMainBinding
@@ -31,19 +32,24 @@ class MainActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
 
         binding.btnGetOTP.setOnClickListener {
-            val etPhoneNumber=binding.etPhoneNumber.text
-            if (etPhoneNumber.isNotEmpty() && etPhoneNumber.length == 10) {
+            val etPhoneNumber= binding.etPhoneNumber.editText?.text.toString()
+            if (etPhoneNumber.length == 10) {
                 val phoneNumber = "+91 $etPhoneNumber"
                 sendCode(phoneNumber)
+                binding.etPhoneNumber.error=null
             } else {
+                binding.etPhoneNumber.error="Invalid Phone no."
                 Toast.makeText(this, "Enter valid Phone Number!", Toast.LENGTH_SHORT).show()
             }
         }
 
         binding.btnSubmit.setOnClickListener {
-            if (binding.etOTP.text.isNotEmpty()) {
-                verifyCode(binding.etOTP.text.toString())
+            val OTP= binding.etOTP.editText?.text.toString()
+            if (OTP.length == 6 ) {
+                verifyCode(OTP)
+                binding.etOTP.error=null
             } else {
+                binding.etOTP.error="Invalid OTP"
                 Toast.makeText(this, "Enter valid OTP!", Toast.LENGTH_SHORT).show()
             }
         }
@@ -77,7 +83,7 @@ class MainActivity : AppCompatActivity() {
                     // Sign in failed, display a message and update the UI
                     Log.w(TAG, "signInWithCredential:failure", task.exception)
                     if (task.exception is FirebaseAuthInvalidCredentialsException) {
-                        // The verification code entered was invalid
+                        binding.etOTP.error="Invalid OTP"
                     }
                     // Update UI
                 }
@@ -112,6 +118,10 @@ class MainActivity : AppCompatActivity() {
             Log.d(TAG, "onCodeSent:$verificationId")
 
             storedVerificationId = verificationId
+
+            binding.etOTP.visibility=View.VISIBLE
+            binding.btnGetOTP.visibility=View.GONE
+            binding.btnSubmit.visibility=View.VISIBLE
         }
     }
 
