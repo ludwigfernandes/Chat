@@ -1,59 +1,73 @@
 package com.example.chat
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.example.chat.databinding.ActivityMainBinding
+import com.example.chat.databinding.ActivitySignupBinding
 import com.google.firebase.FirebaseException
 import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthMissingActivityForRecaptchaException
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 import java.util.concurrent.TimeUnit
 
-class MainActivity : AppCompatActivity() {
+class SignupActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityMainBinding
-    private lateinit var auth: FirebaseAuth
-
+    private lateinit var binding: ActivitySignupBinding
     private lateinit var storedVerificationId: String
+    private lateinit var auth: FirebaseAuth
+    private lateinit var databaseReference: DatabaseReference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
+        binding = ActivitySignupBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
+
 
         auth = FirebaseAuth.getInstance()
 
         binding.btnGetOTP.setOnClickListener {
-            val etPhoneNumber= binding.etPhoneNumber.editText?.text.toString()
-            if (etPhoneNumber.length == 10) {
+            val etPhoneNumber = binding.etPhoneNumber.editText?.text.toString()
+            val etName = binding.etName.editText?.text.toString()
+            if (etPhoneNumber.length == 10 && etName.length > 1) {
                 val phoneNumber = "+91 $etPhoneNumber"
                 sendCode(phoneNumber)
-                binding.etPhoneNumber.error=null
+                binding.etPhoneNumber.error = null
+                binding.etName.error = null
             } else {
-                binding.etPhoneNumber.error="Invalid Phone no."
-                Toast.makeText(this, "Enter valid Phone Number!", Toast.LENGTH_SHORT).show()
+                binding.etName.error = null
+                binding.etPhoneNumber.error = "Invalid Phone no."
+                if (etName.length == 0) {
+                    binding.etName.error = "Enter your name"
+                }
             }
         }
 
         binding.btnSubmit.setOnClickListener {
-            val OTP= binding.etOTP.editText?.text.toString()
-            if (OTP.length == 6 ) {
+            val OTP = binding.etOTP.editText?.text.toString()
+            if (OTP.length == 6) {
                 verifyCode(OTP)
-                binding.etOTP.error=null
+                binding.etOTP.error = null
             } else {
-                binding.etOTP.error="Invalid OTP"
+                binding.etOTP.error = "Invalid OTP"
                 Toast.makeText(this, "Enter valid OTP!", Toast.LENGTH_SHORT).show()
             }
         }
 
+        binding.tvSignIn.setOnClickListener {
+            startActivity(Intent(this, SigninActivity::class.java))
+            finish()
+        }
     }
 
     private fun verifyCode(code: String) {
@@ -75,15 +89,38 @@ class MainActivity : AppCompatActivity() {
         auth.signInWithCredential(credential)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
+                    val user: FirebaseUser? = auth.currentUser
+                    val userId: String = user!!.uid
+                    val name = binding.etName.editText?.text.toString()
+                    val phoneNumber = binding.etPhoneNumber.editText?.text.toString()
+
+                    databaseReference =
+                        FirebaseDatabase.getInstance().getReference("Users").child(userId)
+
+                    val hashMap: HashMap<String, String> = HashMap()
+                    hashMap["userId"] = userId
+                    hashMap["profileImage"] = ""
+                    hashMap["name"] = name
+                    hashMap["phoneNumber"] = phoneNumber
+
+                    databaseReference.setValue(hashMap).addOnCompleteListener {
+                        if (it.isSuccessful) {
+                            startActivity(Intent(this, UsersActivity::class.java))
+                            finish()
+                            Toast.makeText(this, "Data entered", Toast.LENGTH_SHORT).show()
+
+                        }
+                    }
+
                     // Sign in success, update UI with the signed-in user's information
                     Log.d(TAG, "signInWithCredential:success")
 
-                    val user = task.result?.user
+                    //val user = task.result?.user
                 } else {
                     // Sign in failed, display a message and update the UI
                     Log.w(TAG, "signInWithCredential:failure", task.exception)
                     if (task.exception is FirebaseAuthInvalidCredentialsException) {
-                        binding.etOTP.error="Invalid OTP"
+                        binding.etOTP.error = "Invalid OTP"
                     }
                     // Update UI
                 }
@@ -119,13 +156,15 @@ class MainActivity : AppCompatActivity() {
 
             storedVerificationId = verificationId
 
-            binding.etOTP.visibility=View.VISIBLE
-            binding.btnGetOTP.visibility=View.GONE
-            binding.btnSubmit.visibility=View.VISIBLE
+            binding.etPhoneNumber.editText?.isEnabled = false
+            binding.etName.editText?.isEnabled = false
+            binding.btnGetOTP.visibility = View.GONE
+            binding.etOTP.visibility = View.VISIBLE
+            binding.btnSubmit.visibility = View.VISIBLE
         }
     }
 
     companion object {
-        private const val TAG = "MainActivity"
+        private const val TAG = "MyApp"
     }
 }

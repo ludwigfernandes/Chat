@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="12dp"
+    tools:context=".ChatActivity">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvChat"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/typingArea" />
+
+
+    <RelativeLayout
+        android:id="@+id/typingArea"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/round_corners"
+        android:backgroundTint="?attr/colorSurfaceVariant">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dp"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/etMessage"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_weight="1"
+                android:background="#00000000"
+                android:hint="Type something.."
+                android:inputType="text"
+                android:singleLine="false" />
+
+            <ImageButton
+                android:id="@+id/btnCamera"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:background="#00000000"
+                android:src="@drawable/ic_camera"
+                android:text="Send Image"
+                app:tint="?attr/colorPrimary" />
+
+            <ImageButton
+                android:id="@+id/btnSendFile"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:background="#00000000"
+                android:src="@drawable/ic_attachment"
+                android:text="Send File"
+                app:tint="?attr/colorPrimary" />
+
+
+            <ImageButton
+                android:id="@+id/btnSendMessage"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:background="@drawable/round_corners"
+                android:backgroundTint="?attr/colorPrimary"
+                android:foregroundTint="?attr/colorOnPrimary"
+                android:src="@drawable/ic_send"
+                android:text="Sign Up" />
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</RelativeLayout>
