@@ -2,7 +2,7 @@
 Welcome to my Chat App! This project showcases my ability to build a functional and user-friendly chat application using Android, Kotlin and Firebase.
 
 # Key Features
-Firebase Authentication
+*Firebase Authentication*
 I implemented Firebase Authentication to handle user sign-in and sign-up using phone numbers. The app verifies phone numbers via OTP, ensuring secure and straightforward authentication.
 
 User Management
